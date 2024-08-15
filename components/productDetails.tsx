@@ -6,19 +6,15 @@ import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/state";
 import Image from 'next/image';
-import { useParams } from "next/navigation";
 
 interface ProductDetailsProps {
-    products: ProductType[]
+    product: ProductType
 }
 
-const ProductDetails = ({ products }: ProductDetailsProps) => {
+const ProductDetails = ({ product }: ProductDetailsProps) => {
     const cartItems = useSelector((state: RootState) => state.cart.cartItems)
 	const dispatch = useDispatch();
 
-	const { productId } = useParams();
-	const product: ProductType = products.find((product: ProductType) => product.id === Number(productId))!;
-	
     function addToCart() {
         dispatch(ADD_TO_CART({ product, quantity: 1 }));
     }
@@ -32,9 +28,9 @@ const ProductDetails = ({ products }: ProductDetailsProps) => {
 	const ratingsArray = Array(5).fill(0);
 
 	return (
-        <div className="py-12 grid grid-cols-1 lg:grid-cols-2">
+        <div className="py-12 grid grid-cols-1 md:grid-cols-2">
             <div className="flex justify-center items-center p-8">
-                <Image src={product.image} alt={product.title} width={500} height={500} className="w-full sm:w-[80%] aspect-square object-contain" />
+                <Image priority src={product.image} alt={product.title} width={500} height={500} className="w-full  aspect-square object-contain" />
             </div>
             <div className="flex flex-col">
                 <h2 className="text-3xl font-bold">{product.title}</h2>

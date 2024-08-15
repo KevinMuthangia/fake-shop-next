@@ -23,7 +23,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="grid grid-rows-1 gap-2 p-6 border border-slate-200 bg-white ease-in duration-200">
             <Link href={`/product/${product.id}`}>
                 <div className="flex justify-center items-center">
-                    <Image src={product.image} alt={product.title} width={300} height={300} className="w-4/5 aspect-square object-contain" />
+                    <Image priority src={product.image} alt={product.title} width={300} height={300} className="w-4/5 aspect-square object-contain" />
                 </div>
             </Link>
             <Link href={`/product/${product.id}`} className="hover:underline text-lg font-medium">{product.title}</Link>

@@ -1,62 +1,66 @@
-import type { Metadata } from "next";
-import { ProductType } from "@/types";
-import {  getProductsByCategory } from "@/lib/products";
-import ProductsGrid from "@/components/productsGrid";
-
-type MetaProps = {
-    params: { categoryId: string }
-  }
-  
-export async function generateMetadata(
-    { params }: MetaProps,
-  ): Promise<Metadata> {
+import { Metadata } from 'next';
+import { ProductType } from '@/types';
+import { getProductsByCategory } from '@/lib/products';
+import ProductsGrid from '@/components/productsGrid';
 
 
-    const { categoryId } = params;
-   
-    const fetchCategories = await fetch("https://fakestoreapi.com/products/categories");
-	const categories = await fetchCategories.json();
-    const categoryData = categories.find((category: string) => category.split(' ').join("%20") === categoryId);
-   
-    return {
-      title: `${categoryData.toUpperCase()} | Fake Shop`,
-      description: `Explore top-quality ${categoryData} items for every need and style.`
+export default async function CategoryPage({ params }: { params: { categoryId: string } }) {
+    const { products, categoryTitle, categoryDescription, notFound } = await fetchCategoryData(params.categoryId);
+
+    if (notFound) {
+        return (
+            <div className='fixed inset-0 flex flex-col items-center justify-center gap-4'>
+                <h1 className='text-2xl font-semibold'>404 - Category Not Found</h1>
+                <p>The category you are looking for does not exist.</p>
+            </div>
+        );
     }
-  }
 
-export async function getStaticPaths(): Promise<{
-    paths?: string[];
-    fallback: boolean;
-}> {
-    const fetchCategories = await fetch("https://fakestoreapi.com/products/categories");
-	const categories = await fetchCategories.json();
-    const allPaths = categories.map((category: string) => {
-        return {
-            params: {
-                categoryId: category.split(' ').join("%20")
-            }
-        }
-    })
-
-
-    return {
-        paths: allPaths,
-        fallback: false
-    }
+    return (
+        <main className='mt-20 px-[6%]'>
+            <h2 className="text-2xl text-black font-medium capitalize">{categoryTitle}</h2>
+            <p className="text-md text-gray-700">{categoryDescription}</p>
+            <ProductsGrid products={products} />
+        </main>
+    );
 }
 
 
-const CategoryPage = async ({ params }: {params: { categoryId: string }}) => {
-	const { categoryId } = params;
-    const products: ProductType[] = await getProductsByCategory(categoryId as string);
-	const sortedProducts: ProductType[] = products.sort((a, b) => b.rating?.rate - a.rating?.rate);
+async function fetchCategoryData(categoryId: string) {
+    const products = await getProductsByCategory(categoryId);
+    const sortedProducts = products.sort((a:ProductType, b: ProductType) => (b.rating?.rate || 0) - (a.rating?.rate || 0));
 
-	return (
-		<main className='mt-20 px-[6%]'>
-			<h2 className="text-2xl text-black font-medium capitalize">{products[0].category}</h2>
-			<ProductsGrid products={sortedProducts} />
-		</main>
-	);
-};
+    const fetchCategories = await fetch('https://fakestoreapi.com/products/categories');
+    const categories: string[] = await fetchCategories.json();
+    const categoryData = categories.find((category) => category.split(' ').join('%20') === categoryId);
 
-export default CategoryPage;
+    if (!categoryData) {
+        return { notFound: true };
+    }
+
+    return {
+        products: sortedProducts,
+        categoryTitle: categoryData,
+        categoryDescription: `Explore top-quality ${categoryData} items for every need and style.`,
+        notFound: false
+    };
+}
+
+export async function generateMetadata({ params }: { params: { categoryId: string } }): Promise<Metadata> {
+    const { categoryId } = params;
+    const fetchCategories = await fetch('https://fakestoreapi.com/products/categories');
+    const categories: string[] = await fetchCategories.json();
+    const categoryData = categories.find((category) => category.split(' ').join('%20') === categoryId);
+
+    if (!categoryData) {
+        return {
+            title: 'Category Not Found | Fake Shop',
+            description: 'The category you are looking for does not exist.'
+        };
+    }
+
+    return {
+        title: `${categoryData.toUpperCase()} | Fake Shop`,
+        description: `Explore top-quality ${categoryData} items for every need and style.`
+    };
+}
