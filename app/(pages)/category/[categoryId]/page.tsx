@@ -1,6 +1,6 @@
-import type { Metadata, ResolvingMetadata } from "next";
+import type { Metadata } from "next";
 import { ProductType } from "@/types";
-import { getAllProducts, getProductsByCategory } from "@/lib/products";
+import {  getProductsByCategory } from "@/lib/products";
 import ProductsGrid from "@/components/productsGrid";
 
 type MetaProps = {
@@ -9,7 +9,6 @@ type MetaProps = {
   
 export async function generateMetadata(
     { params }: MetaProps,
-    parent: ResolvingMetadata
   ): Promise<Metadata> {
 
 
@@ -25,7 +24,10 @@ export async function generateMetadata(
     }
   }
 
-export async function getStaticPaths() {
+export async function getStaticPaths(): Promise<{
+    paths?: string[];
+    fallback: boolean;
+}> {
     const fetchCategories = await fetch("https://fakestoreapi.com/products/categories");
 	const categories = await fetchCategories.json();
     const allPaths = categories.map((category: string) => {
@@ -35,6 +37,7 @@ export async function getStaticPaths() {
             }
         }
     })
+
 
     return {
         paths: allPaths,

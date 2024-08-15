@@ -3,6 +3,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/state";
 import { CartItems, DELETE_FROM_CART, TOGGLE_CART } from "@/state/cartSlice";
+import Image from "next/image";
 
 
 export default function Cart () {
@@ -30,7 +31,7 @@ export default function Cart () {
                             return(
                                 <div key={`${product.product.title}-${index}`} className="px-2 flex justify-between items-start gap-4">
                                     <div className="w-16">
-                                        <img className="w-full aspect-square object-contain" src={product.product.image} alt={product.product.image} />
+                                        <Image width={64} height={64} className="w-full aspect-square object-contain" src={product.product.image} alt={product.product.image} />
                                     </div>
                                     <div className="flex-1 text-white">
                                         <p className="text-sm text-right font-medium">

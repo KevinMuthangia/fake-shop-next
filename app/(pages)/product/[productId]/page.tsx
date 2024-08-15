@@ -1,4 +1,4 @@
-import { Metadata, ResolvingMetadata } from "next";
+import { Metadata } from "next";
 import { ProductType } from "@/types";
 import { getAllProducts } from '@/lib/products';
 import ProductDetails from "@/components/productDetails";
@@ -10,7 +10,6 @@ interface MetaProps {
 
 export async function generateMetadata(
     { params }: MetaProps,
-    parent: ResolvingMetadata
   ): Promise<Metadata> {
 
 
@@ -26,22 +25,21 @@ export async function generateMetadata(
     }
   }
 
-export async function getStaticPaths() {
+export async function getStaticPaths(): Promise<{
+    paths?: string[];
+    fallback: boolean;
+}> {
 	const products = await getAllProducts();
 
     const allPaths = products.map((product: ProductType) => {
-        return {
-            params: {
-                productId: product.id.toString()
-            }
-        }
+        return `/product/${product.id}`
     })
 
     return {
         paths: allPaths,
         fallback: false
     }
-}
+} 
 
 const ProductPage = async () =>  {
 	const products = await getAllProducts();
